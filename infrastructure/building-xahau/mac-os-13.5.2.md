@@ -1,8 +1,6 @@
 # Mac OS - 15.3.2 (24D81)
 
-{% hint style="info" %}
-Xahaud now supports Conan for dependency management, eliminating the need to manually build Boost, Protobuf, and other dependencies. We recommend using Conan to manage dependencies. The detailed build instructions can be found in the [BUILD.md](https://github.com/Xahau/xahaud/blob/dev/BUILD.md) file.
-{% endhint %}
+Xahaud uses Conan for dependency management. For comprehensive build instructions, see the [BUILD.md](https://github.com/Xahau/xahaud/blob/dev/BUILD.md) file in the source code.
 
 ## Requirements
 
