@@ -1,22 +1,23 @@
 # Ubuntu - 22.04
 
 {% hint style="info" %}
-Xahaud now supports building using Conan. We recommend using Conan to build the repository. The detailed build instructions for Conan can be found in the [BUILD.md](https://github.com/Xahau/xahaud/blob/dev/BUILD.md) file in the source code.
+Xahaud now supports Conan for dependency management, eliminating the need to manually build Boost, Protobuf, and other dependencies. We recommend using Conan to manage dependencies. The detailed build instructions can be found in the [BUILD.md](https://github.com/Xahau/xahaud/blob/dev/BUILD.md) file.
 {% endhint %}
 
-## Conan Requirements
+## Requirements
 
-| Dependency | Minimum Version |
+| Dependency | Working Version |
 | ---------- | --------------- |
-| Python     | 3.7             |
-| Conan      | 1.55            |
-| CMake      | 3.16            |
-| GCC        | 10              |
-| Clang      | 13              |
+| GCC / G++  | 10+             |
+| Clang      | 13+             |
+| CMake      | 3.16+           |
+| Ninja      | 1.10+ (recommended) |
+| Python     | 3.7+            |
+| Conan      | 1.55+           |
 
-## Quick Start with Conan
+## Dependency Management with Conan
 
-### 1. Set Up Conan Profile
+### Set Up Conan Profile
 
 ```bash
 conan profile new default --detect
@@ -24,23 +25,48 @@ conan profile update settings.compiler.cppstd=20 default
 conan profile update settings.compiler.libcxx=libstdc++11 default
 ```
 
-### 2. Export Custom Recipes (Required)
+### Export Custom Recipes (Required)
+
+Xahaud requires custom Conan recipes for Snappy and SOCI:
 
 ```bash
 conan export external/snappy snappy/1.1.10@xahaud/stable
 conan export external/soci soci/4.0.3@xahaud/stable
 ```
 
-### 3. Build
+### Install Dependencies
 
 ```bash
 mkdir .build && cd .build
 conan install .. --output-folder . --build missing --settings build_type=Release
-cmake -DCMAKE_TOOLCHAIN_FILE:FILEPATH=build/generators/conan_toolchain.cmake -DCMAKE_BUILD_TYPE=Release ..
-cmake --build .
 ```
 
-### 4. Test
+## Build with CMake
+
+### Set Build Environment Variables
+
+```bash
+export CC=gcc
+export CXX=g++
+export CFLAGS="-DBOOST_ASIO_HAS_STD_INVOKE_RESULT"
+export CXXFLAGS="-DBOOST_ASIO_HAS_STD_INVOKE_RESULT"
+```
+
+### Configure and Build (Ninja - Recommended)
+
+```bash
+cmake -G Ninja -DCMAKE_TOOLCHAIN_FILE:FILEPATH=build/generators/conan_toolchain.cmake -DCMAKE_BUILD_TYPE=Release ..
+ninja
+```
+
+### Alternative: Configure and Build (Make)
+
+```bash
+cmake -DCMAKE_TOOLCHAIN_FILE:FILEPATH=build/generators/conan_toolchain.cmake -DCMAKE_BUILD_TYPE=Release ..
+make -j$(nproc)
+```
+
+## Test
 
 ```bash
 ./rippled --unittest
